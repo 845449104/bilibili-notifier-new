@@ -5,6 +5,8 @@
 本脚本用于监控哔哩哔哩（Bilibili）用户关注的 UP 主的动态，当有新视频发布时，会通过飞书机器人发送消息通知。脚本会自动处理登录、Cookie 管理和动态数据的比较，确保每次运行时能准确识别新视频。
 > **本项目fork自 https://github.com/CserQin/bilibili-new-video-notifier 感谢CserQin的贡献！**
 
+### 新增功能:检测视频评论区
+
 ### 功能特点:
 
 1.  **自动登录**：支持扫码登录，自动处理 Cookie 的保存和验证。
