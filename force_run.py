@@ -91,20 +91,31 @@ def check_new_videos():
     if not items:
         return
     
-    # 这里简化处理，实际应该对比上次检查记录
-    # 现在只推送最新的1条作为测试
-    for item in items[:1]:
-        modules = item.get('modules', {})
-        author = modules.get('module_author', {})
-        dynamic = modules.get('module_dynamic', {})
-        
-        name = author.get('name', '未知UP')
-        pub_time = author.get('pub_time', '')
-        desc = dynamic.get('desc', {}).get('text', '')[:50]
-        
-        msg = f"UP主: {name}\n时间: {pub_time}\n内容: {desc}"
-        print(f"📢 发现动态: {msg}")
-        send_feishu(msg, "B站新动态提醒")
+    for item in items[:3]:  # 检查前3条
+        try:
+            modules = item.get('modules', {})
+            author = modules.get('module_author', {})
+            dynamic = modules.get('module_dynamic', {})
+            
+            name = author.get('name', '未知UP')
+            pub_time = author.get('pub_time', '')
+            
+            # 安全获取描述
+            desc_obj = dynamic.get('desc') if dynamic else None
+            desc = desc_obj.get('text', '')[:50] if desc_obj else '无文字内容'
+            
+            # 获取动态类型
+            type_name = item.get('type', 'unknown')
+            
+            msg = f"UP主: {name}\n类型: {type_name}\n时间: {pub_time}\n内容: {desc}"
+            print(f"📢 发现动态: {name} - {desc[:20]}...")
+            send_feishu(msg, "B站新动态提醒")
+            
+        except Exception as e:
+            print(f"⚠️ 处理某条动态出错: {e}")
+            continue
+    
+    print(f"✅ 本次检查完成，共处理 {min(len(items), 3)} 条")
 
 if __name__ == '__main__':
     print("=== B站监控强制运行模式 ===")
