@@ -1,0 +1,61 @@
+name: Bilibili Notifier
+
+on:
+  schedule:
+    # 每5分钟运行一次（UTC时间）
+    # 分 时 日 月 星期
+    - cron: '*/5 * * * *'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+      
+      - name: 创建配置文件
+        run: |
+          cat > config.json << EOF
+          {
+            "feishu_webhook": "${{ secrets.FEISHU_WEBHOOK }}",
+            "check_interval_minutes": 5,
+            "followed_dynamic_types": ["DYNAMIC_TYPE_AV", "DYNAMIC_TYPE_DRAW"],
+            "followed_mids": []
+          }
+          EOF
+          echo "配置文件已创建"
+      
+      - name: 创建 Cookie 文件
+        env:
+          DEDEUSERID: ${{ secrets.BILI_DEDEUSERID }}
+          SESSDATA: ${{ secrets.BILI_SESSDATA }}
+          BILI_JCT: ${{ secrets.BILI_JCT }}
+        run: |
+          cat > cookies.json << EOF
+          {
+            "DedeUserID": "${DEDEUSERID}",
+            "DedeUserID__ckMd5": "80b26d921c95178f",
+            "SESSDATA": "${SESSDATA}",
+            "bili_jct": "${BILI_JCT}"
+          }
+          EOF
+          echo "Cookie 文件已创建"
+      
+      - name: 运行监控脚本
+        run: |
+          # 检查文件是否存在
+          ls -la cookies.json
+          ls -la config.json
+          # 运行脚本
+          python bilibili_followed_dynamics.py
