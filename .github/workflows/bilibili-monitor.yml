@@ -53,9 +53,10 @@ jobs:
           echo "Cookie 文件已创建"
       
       - name: 运行监控脚本
+        env:
+          BILI_DEDEUSERID: ${{ secrets.BILI_DEDEUSERID }}
+          BILI_SESSDATA: ${{ secrets.BILI_SESSDATA }}
+          BILI_JCT: ${{ secrets.BILI_JCT }}
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
         run: |
-          # 检查文件是否存在
-          ls -la cookies.json
-          ls -la config.json
-          # 运行脚本
-          python bilibili_followed_dynamics.py
+          python github_actions_runner.py
