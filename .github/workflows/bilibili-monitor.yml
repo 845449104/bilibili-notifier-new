@@ -58,5 +58,6 @@ jobs:
           BILI_SESSDATA: ${{ secrets.BILI_SESSDATA }}
           BILI_JCT: ${{ secrets.BILI_JCT }}
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          BILI_FOLLOWED_MIDS: ${{ secrets.BILI_FOLLOWED_MIDS }}  
         run: |
           python cookie_injector.py
