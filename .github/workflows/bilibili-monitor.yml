@@ -1,62 +1,37 @@
-name: Bilibili Notifier
+name: Bilibili UP主自评论监控
 
 on:
   schedule:
-    # 每5分钟运行一次（UTC时间）
-    # 分 时 日 月 星期
-    - cron: '*/5 * * * *'
-  workflow_dispatch:  # 允许手动触发
+    - cron: '*/5 * * * *'  # 每5分钟检查一次
+  workflow_dispatch:
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
     
     steps:
-      - name: 检出代码
+      - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: 设置 Python 环境
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: 安装依赖
+      - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install requests qrcode schedule
       
-      - name: 创建配置文件
-        run: |
-          cat > config.json << EOF
-          {
-            "feishu_webhook": "${{ secrets.FEISHU_WEBHOOK }}",
-            "check_interval_minutes": 5,
-            "followed_dynamic_types": ["DYNAMIC_TYPE_AV", "DYNAMIC_TYPE_DRAW"],
-            "followed_mids": []
-          }
-          EOF
-          echo "配置文件已创建"
-      
-      - name: 创建 Cookie 文件
+      - name: Run monitor
         env:
-          DEDEUSERID: ${{ secrets.BILI_DEDEUSERID }}
-          SESSDATA: ${{ secrets.BILI_SESSDATA }}
-          BILI_JCT: ${{ secrets.BILI_JCT }}
-        run: |
-          cat > cookies.json << EOF
-          {
-            "DedeUserID": "${DEDEUSERID}",
-            "DedeUserID__ckMd5": "80b26d921c95178f",
-            "SESSDATA": "${SESSDATA}",
-            "bili_jct": "${BILI_JCT}"
-          }
-          EOF
-          echo "Cookie 文件已创建"
-      
-      - name: 运行监控脚本
-        env:
+          # B站 Cookie（从浏览器复制）
           BILI_DEDEUSERID: ${{ secrets.BILI_DEDEUSERID }}
           BILI_SESSDATA: ${{ secrets.BILI_SESSDATA }}
           BILI_JCT: ${{ secrets.BILI_JCT }}
-          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+          # 飞书推送（可选，原脚本需要配置 config.json 或修改 send_feishu_self_comment）
+          # 如果原脚本 config.json 里的 webhook 已配置，这里可不传
+          # 状态持久化（强烈建议配置，避免重复推送）
+          GIST_ID: ${{ secrets.GIST_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python force_run.py
+          python github_runner.py
