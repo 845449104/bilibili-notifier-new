@@ -59,4 +59,4 @@ jobs:
           BILI_JCT: ${{ secrets.BILI_JCT }}
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
         run: |
-          python github_actions_runner.py
+          python cookie_injector.py
