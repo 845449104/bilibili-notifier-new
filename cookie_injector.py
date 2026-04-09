@@ -18,11 +18,15 @@ def setup_environment():
         "bili_jct": os.environ.get('BILI_JCT', '')
     }
     
+    # 读取MID列表（从环境变量）
+    mids_str = os.environ.get('BILI_FOLLOWED_MIDS', '')
+    followed_mids = [mid.strip() for mid in mids_str.split(',') if mid.strip()] if mids_str else []
+    
     config = {
         "feishu_webhook": os.environ.get('FEISHU_WEBHOOK', ''),
         "check_interval_minutes": 5,
         "followed_dynamic_types": ["DYNAMIC_TYPE_AV", "DYNAMIC_TYPE_DRAW"],
-        "followed_mids": []
+        "followed_mids": followed_mids
     }
     
     # 验证
